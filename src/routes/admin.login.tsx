@@ -71,7 +71,7 @@ function AdminLoginPage() {
         email: address,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/admin/verify`,
+          emailRedirectTo: siteUrlFor("/admin/verify"),
         },
       });
       if (linkError) throw linkError;
@@ -98,7 +98,7 @@ function AdminLoginPage() {
     }
     setError(null);
     await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: siteUrlFor("/reset-password"),
     });
     setResetSent(true);
   }

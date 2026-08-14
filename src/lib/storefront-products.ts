@@ -56,6 +56,20 @@ async function resolveImages(paths: string[]) {
   return map;
 }
 
+/**
+ * Inventory truth: the quantity wins whenever it is positive. When the quantity
+ * is missing/zero but the status flag still says the item is available, we keep
+ * it buyable so an unmanaged quantity never triggers a false "sold out".
+ */
+function resolveStock(row: DbProduct): number {
+  const qty = Number(row.stock_quantity);
+  if (Number.isFinite(qty) && qty > 0) return Math.floor(qty);
+  const status = String(row.stock_status ?? "").toLowerCase();
+  const soldOut =
+    status.includes("out") || status.includes("sold") || status.includes("unavailable");
+  return soldOut ? 0 : Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : status ? 99 : 0;
+}
+
 function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogProduct {
   const images = [row.main_image, ...(row.gallery_images ?? [])]
     .filter((value): value is string => Boolean(value))
@@ -82,7 +96,7 @@ function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogPro
     reviews: house?.reviews ?? 0,
     // Trust the quantity first: a stale `stock_status` flag must not make an
     // in-stock item look sold out.
-    stock: Math.max(0, Number(row.stock_quantity ?? 0)),
+    stock: resolveStock(row),
 
     images: images.length ? images : [fallbackImage],
     isNew: Boolean(row.is_new_arrival),

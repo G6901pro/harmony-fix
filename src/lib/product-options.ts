@@ -230,10 +230,17 @@ export function resolveSelection(args: {
   const valueSku = selectedValues.map((entry) => entry.value.sku).filter(Boolean).join(" / ");
   const sku = variant?.sku || valueSku || baseSku;
 
-  const valueStocks = selectedValues.map((entry) => entry.value.stock);
+  // Per-value stock is optional in the admin dashboard: a value left at 0 means
+  // "not tracked here", NOT "sold out". Only positive values constrain stock,
+  // otherwise we fall back to the product's own inventory.
+  const valueStocks = selectedValues
+    .map((entry) => Number(entry.value.stock))
+    .filter((value) => Number.isFinite(value) && value > 0);
   const stock =
     variant != null
-      ? variant.stock
+      ? variant.stock > 0
+        ? variant.stock
+        : baseStock
       : valueStocks.length > 0
         ? Math.min(...valueStocks)
         : selectedValues.length > 0
@@ -246,7 +253,7 @@ export function resolveSelection(args: {
 
   const valuesUnavailable = selectedValues.some((entry) => entry.value.status === "out_of_stock");
   const available = variant
-    ? variant.is_available && variant.stock > 0
+    ? variant.is_available && (variant.stock > 0 || baseStock > 0)
     : !valuesUnavailable && (stock === null || stock > 0 || baseStock > 0);
 
   return { price, sku, stock, images, available, variant, selectedValues };
