@@ -7,6 +7,7 @@ import { Logo } from "@/components/brand/Logo";
 import { useAdminSession } from "@/lib/admin/use-admin-session";
 import { loadRememberedEmail, saveRememberedEmail } from "@/lib/admin/session";
 import { requestAdminVerification } from "@/lib/admin/verification.functions";
+import { siteUrlFor } from "@/lib/site-url";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
