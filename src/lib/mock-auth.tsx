@@ -22,6 +22,7 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { siteUrl } from "@/lib/site-url";
 
 
 export type MockUser = {
