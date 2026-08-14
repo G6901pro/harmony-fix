@@ -67,7 +67,9 @@ function resolveStock(row: DbProduct): number {
   const status = String(row.stock_status ?? "").toLowerCase();
   const soldOut =
     status.includes("out") || status.includes("sold") || status.includes("unavailable");
-  return soldOut ? 0 : Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : status ? 99 : 0;
+  if (soldOut) return 0;
+  // Status says available but no quantity is tracked — keep it buyable.
+  return status ? 99 : 0;
 }
 
 function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogProduct {
