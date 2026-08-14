@@ -7,6 +7,7 @@ import { Logo } from "@/components/brand/Logo";
 import { useAdminSession } from "@/lib/admin/use-admin-session";
 import { loadRememberedEmail, saveRememberedEmail } from "@/lib/admin/session";
 import { requestAdminVerification } from "@/lib/admin/verification.functions";
+import { siteUrlFor } from "@/lib/site-url";
 
 export const Route = createFileRoute("/admin/login")({
   ssr: false,
@@ -70,7 +71,7 @@ function AdminLoginPage() {
         email: address,
         options: {
           shouldCreateUser: false,
-          emailRedirectTo: `${window.location.origin}/admin/verify`,
+          emailRedirectTo: siteUrlFor("/admin/verify"),
         },
       });
       if (linkError) throw linkError;
@@ -97,7 +98,7 @@ function AdminLoginPage() {
     }
     setError(null);
     await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: siteUrlFor("/reset-password"),
     });
     setResetSent(true);
   }

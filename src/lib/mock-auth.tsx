@@ -22,6 +22,7 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { siteUrl } from "@/lib/site-url";
 
 
 export type MockUser = {
@@ -115,7 +116,8 @@ export function toAppUser(user: User): MockUser {
   };
 }
 
-const origin = () => (typeof window === "undefined" ? "" : window.location.origin);
+/** Public base URL for emailed links — env-driven, never hardcoded localhost. */
+const origin = () => siteUrl();
 
 /** Normalise a Bangladeshi phone number to +8801XXXXXXXXX, or null if invalid. */
 export function normalizeBdPhone(value: string): string | null {
@@ -186,6 +188,7 @@ export const authApi = {
       email: email.trim(),
       password,
       options: {
+        emailRedirectTo: `${origin()}/`,
         data: {
           full_name: fullName.trim(),
           ...(normalizedPhone ? { phone: normalizedPhone } : {}),
