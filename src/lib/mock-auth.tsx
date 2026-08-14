@@ -188,6 +188,7 @@ export const authApi = {
       email: email.trim(),
       password,
       options: {
+        emailRedirectTo: `${origin()}/`,
         data: {
           full_name: fullName.trim(),
           ...(normalizedPhone ? { phone: normalizedPhone } : {}),
