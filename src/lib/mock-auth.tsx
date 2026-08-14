@@ -115,7 +115,8 @@ export function toAppUser(user: User): MockUser {
   };
 }
 
-const origin = () => (typeof window === "undefined" ? "" : window.location.origin);
+/** Public base URL for emailed links — env-driven, never hardcoded localhost. */
+const origin = () => siteUrl();
 
 /** Normalise a Bangladeshi phone number to +8801XXXXXXXXX, or null if invalid. */
 export function normalizeBdPhone(value: string): string | null {
