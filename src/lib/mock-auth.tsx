@@ -142,14 +142,20 @@ export const authApi = {
     });
     if (error) {
       const message = error.message.toLowerCase();
+      // Email verification is permanently disabled. If the backend ever reports
+      // an unconfirmed address for a legacy account, do not park the member on a
+      // verification screen — let them straight in on their password.
       if (message.includes("not confirmed") || message.includes("not verified")) {
-        throw new EmailNotVerifiedError(email.trim());
+        const retry = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (retry.data.user) return toAppUser(retry.data.user);
+        throw new AuthError("Incorrect email or password.", "password");
       }
       if (message.includes("invalid login credentials")) {
         throw new AuthError("Incorrect email or password.", "password");
       }
       throw new AuthError(error.message);
     }
+
     if (!data.user) throw new AuthError("Unable to sign in. Please try again.");
     return toAppUser(data.user);
   },
