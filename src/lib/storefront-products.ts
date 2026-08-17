@@ -74,7 +74,13 @@ function resolveStock(row: DbProduct): number {
 }
 
 
-function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogProduct {
+type ReviewStat = { count: number; average: number };
+
+function toCatalogProduct(
+  row: DbProduct,
+  urls: Map<string, string>,
+  reviewStats?: Map<string, ReviewStat>,
+): CatalogProduct {
   const images = [row.main_image, ...(row.gallery_images ?? [])]
     .filter((value): value is string => Boolean(value))
     .map((value) => urls.get(value) ?? value);
@@ -83,6 +89,7 @@ function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogPro
   // ratings) fall back to the curated house entry with the same slug so every
   // filter group has data to match against.
   const house = houseBySlug.get(row.slug);
+  const stats = reviewStats?.get(row.slug);
 
   return {
     id: row.id,
@@ -96,8 +103,9 @@ function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogPro
     color: row.color ?? house?.color ?? "",
     price: Number(row.base_price ?? 0),
     compareAt: row.compare_at_price ? Number(row.compare_at_price) : undefined,
-    rating: house?.rating ?? 5,
-    reviews: house?.reviews ?? 0,
+    // Real approved reviews win; the curated entry is only a fallback.
+    rating: stats?.count ? stats.average : (house?.rating ?? 5),
+    reviews: stats?.count ?? house?.reviews ?? 0,
     // Trust the quantity first: a stale `stock_status` flag must not make an
     // in-stock item look sold out.
     stock: resolveStock(row),
@@ -125,6 +133,28 @@ function toCatalogProduct(row: DbProduct, urls: Map<string, string>): CatalogPro
   };
 }
 
+/** Approved review counts / averages, keyed by product slug. */
+async function fetchReviewStats(slugs: string[]) {
+  const map = new Map<string, ReviewStat>();
+  if (!slugs.length) return map;
+  const { data } = await supabase
+    .from("reviews")
+    .select("product_slug, rating")
+    .eq("is_approved", true)
+    .in("product_slug", slugs);
+  const totals = new Map<string, { sum: number; count: number }>();
+  for (const row of data ?? []) {
+    const entry = totals.get(row.product_slug) ?? { sum: 0, count: 0 };
+    entry.sum += Number(row.rating ?? 0);
+    entry.count += 1;
+    totals.set(row.product_slug, entry);
+  }
+  for (const [slug, { sum, count }] of totals) {
+    map.set(slug, { count, average: count ? sum / count : 0 });
+  }
+  return map;
+}
+
 export async function fetchStorefrontProducts(): Promise<CatalogProduct[]> {
   const { data, error } = await supabase
     .from("products")
@@ -139,9 +169,13 @@ export async function fetchStorefrontProducts(): Promise<CatalogProduct[]> {
   const paths = rows.flatMap((row) =>
     [row.main_image, ...(row.gallery_images ?? [])].filter((v): v is string => Boolean(v)),
   );
-  const urls = await resolveImages(paths);
-  return rows.map((row) => toCatalogProduct(row, urls));
+  const [urls, reviewStats] = await Promise.all([
+    resolveImages(paths),
+    fetchReviewStats(rows.map((row) => row.slug)),
+  ]);
+  return rows.map((row) => toCatalogProduct(row, urls, reviewStats));
 }
+
 
 /**
  * Live catalogue: products managed in the admin dashboard, followed by the
@@ -204,5 +238,6 @@ export function toHomeCard(product: CatalogProduct): Product {
     reviews: product.reviews,
     image: product.images[0],
     badge: product.isNew ? "New" : product.isBestSeller ? "Best Seller" : undefined,
+    stock: product.stock,
   };
 }

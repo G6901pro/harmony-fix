@@ -23,8 +23,11 @@ export function addProductToBag(
       return false;
     }
     const parsed = Number(product.stock);
-    const stock = Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
-    if (stock <= 0) {
+    // Only an explicitly tracked quantity of 0 means sold out. Missing/unknown
+    // inventory must never be defaulted to 0 — that caused false "sold out".
+    const tracked = product.stock !== null && product.stock !== undefined && Number.isFinite(parsed);
+    const stock = tracked ? Math.max(0, Math.floor(parsed)) : 99;
+    if (tracked && stock <= 0) {
       toast.error(`${name} is sold out`);
       return false;
     }

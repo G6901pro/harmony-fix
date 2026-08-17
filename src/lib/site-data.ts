@@ -77,6 +77,8 @@ export type Product = {
   reviews: number;
   image: string;
   badge?: string;
+  /** Live inventory from the database (undefined = not tracked on this card). */
+  stock?: number;
 };
 
 export const bestSellers: Product[] = [
