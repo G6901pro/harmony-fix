@@ -204,5 +204,6 @@ export function toHomeCard(product: CatalogProduct): Product {
     reviews: product.reviews,
     image: product.images[0],
     badge: product.isNew ? "New" : product.isBestSeller ? "Best Seller" : undefined,
+    stock: product.stock,
   };
 }

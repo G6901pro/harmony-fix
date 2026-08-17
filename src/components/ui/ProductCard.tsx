@@ -57,11 +57,12 @@ export function ProductCard({
         <div className="absolute inset-x-3 bottom-3 translate-y-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-hover:opacity-100">
           <button
             type="button"
-            onClick={() => addProductToBag(product)}
-            className="glass flex w-full items-center justify-center gap-2 rounded-full py-3 text-[10px] tracking-[0.24em] uppercase transition-colors hover:text-gold"
+            disabled={product.stock === 0}
+            onClick={() => addProductToBag(catalog ?? product)}
+            className="glass flex w-full items-center justify-center gap-2 rounded-full py-3 text-[10px] tracking-[0.24em] uppercase transition-colors hover:text-gold disabled:opacity-50"
           >
             <ShoppingBag className="size-3.5" />
-            Add to bag
+            {product.stock === 0 ? "Sold out" : "Add to bag"}
           </button>
         </div>
       </div>
