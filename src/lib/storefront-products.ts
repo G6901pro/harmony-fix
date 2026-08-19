@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { products as houseCatalog, type CatalogProduct } from "@/lib/catalog";
 import type { Product } from "@/lib/site-data";
+import { PRODUCT_IMAGES } from "@/lib/product-images";
 import fallbackImage from "@/assets/p1.jpg";
 
 export const STOREFRONT_PRODUCTS_KEY = ["storefront-products"] as const;
@@ -117,7 +118,7 @@ function toCatalogProduct(
     // in-stock item look sold out.
     stock: resolveStock(row),
 
-    images: images.length ? images : [fallbackImage],
+    images: images.length ? images : bundledImages.length ? bundledImages : [fallbackImage],
     isNew: Boolean(row.is_new_arrival),
     isBestSeller: Boolean(row.is_best_seller),
     isFeatured: Boolean(row.is_featured),
