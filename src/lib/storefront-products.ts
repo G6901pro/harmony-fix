@@ -103,7 +103,7 @@ function toCatalogProduct(
     id: row.id,
     slug: row.slug,
     name: row.title,
-    shortDescription: row.description ?? "",
+    shortDescription: row.description || (house?.shortDescription ?? ""),
     brand: row.brand ?? house?.brand ?? "Velocita Signature",
     category: row.category || (house?.category ?? ""),
     sku: row.sku ?? "",
@@ -124,19 +124,24 @@ function toCatalogProduct(
     isFeatured: Boolean(row.is_featured),
     createdAt: row.created_at,
     popularity: house?.popularity ?? 0,
-    specs: [
-      { label: "Brand", value: row.brand ?? "Velocita Signature" },
-      { label: "Category", value: row.category },
-      ...(row.sku ? [{ label: "SKU", value: row.sku }] : []),
-      ...(row.age_group ?? house?.ageGroup
-        ? [{ label: "Recommended age", value: `${row.age_group ?? house?.ageGroup} years` }]
-        : []),
-    ],
-    features: [],
-    boxContents: [],
-    warranty: "24-month international warranty with concierge support.",
-    safety: "Adult supervision recommended during first use and charging.",
-    colorOptions: [],
+    // The database does not store rich detail copy yet — reuse the original
+    // curated entry for the same slug when it exists, otherwise derive basics
+    // from the row. Nothing here overwrites a value the row does provide.
+    specs: house?.specs?.length
+      ? house.specs
+      : [
+          { label: "Brand", value: row.brand ?? "Velocita Signature" },
+          { label: "Category", value: row.category },
+          ...(row.sku ? [{ label: "SKU", value: row.sku }] : []),
+          ...(row.age_group ?? house?.ageGroup
+            ? [{ label: "Recommended age", value: `${row.age_group ?? house?.ageGroup} years` }]
+            : []),
+        ],
+    features: house?.features ?? [],
+    boxContents: house?.boxContents ?? [],
+    warranty: house?.warranty ?? "24-month international warranty with concierge support.",
+    safety: house?.safety ?? "Adult supervision recommended during first use and charging.",
+    colorOptions: house?.colorOptions ?? [],
     reviewsList: [],
   };
 }
