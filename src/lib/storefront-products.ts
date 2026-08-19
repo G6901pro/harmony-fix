@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { products as houseCatalog, type CatalogProduct } from "@/lib/catalog";
 import type { Product } from "@/lib/site-data";
+import { PRODUCT_IMAGES } from "@/lib/product-images";
 import fallbackImage from "@/assets/p1.jpg";
 
 export const STOREFRONT_PRODUCTS_KEY = ["storefront-products"] as const;
@@ -85,6 +86,13 @@ function toCatalogProduct(
     .filter((value): value is string => Boolean(value))
     .map((value) => urls.get(value) ?? value);
 
+  // Imported rows may have no stored image yet — reuse the bundled storefront
+  // image for the same slug so cards keep their original artwork. Never
+  // overrides an image the database does provide.
+  const bundledImages = PRODUCT_IMAGES[row.slug]
+    ? [PRODUCT_IMAGES[row.slug]]
+    : (houseBySlug.get(row.slug)?.images ?? []);
+
   // Attributes the products table does not store yet (age group, colour,
   // ratings) fall back to the curated house entry with the same slug so every
   // filter group has data to match against.
@@ -110,7 +118,7 @@ function toCatalogProduct(
     // in-stock item look sold out.
     stock: resolveStock(row),
 
-    images: images.length ? images : [fallbackImage],
+    images: images.length ? images : bundledImages.length ? bundledImages : [fallbackImage],
     isNew: Boolean(row.is_new_arrival),
     isBestSeller: Boolean(row.is_best_seller),
     isFeatured: Boolean(row.is_featured),
