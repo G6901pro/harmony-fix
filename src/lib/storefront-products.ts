@@ -85,6 +85,13 @@ function toCatalogProduct(
     .filter((value): value is string => Boolean(value))
     .map((value) => urls.get(value) ?? value);
 
+  // Imported rows may have no stored image yet — reuse the bundled storefront
+  // image for the same slug so cards keep their original artwork. Never
+  // overrides an image the database does provide.
+  const bundledImages = PRODUCT_IMAGES[row.slug]
+    ? [PRODUCT_IMAGES[row.slug]]
+    : (houseBySlug.get(row.slug)?.images ?? []);
+
   // Attributes the products table does not store yet (age group, colour,
   // ratings) fall back to the curated house entry with the same slug so every
   // filter group has data to match against.
