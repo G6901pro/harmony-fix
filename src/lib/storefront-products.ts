@@ -103,7 +103,7 @@ function toCatalogProduct(
     id: row.id,
     slug: row.slug,
     name: row.title,
-    shortDescription: row.description ?? "",
+    shortDescription: row.description || (house?.shortDescription ?? ""),
     brand: row.brand ?? house?.brand ?? "Velocita Signature",
     category: row.category || (house?.category ?? ""),
     sku: row.sku ?? "",
