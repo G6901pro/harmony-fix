@@ -58,7 +58,7 @@ const CARD_BRANDS = ["Visa", "Mastercard", "American Express", "UnionPay"];
 function PaymentsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<typeof blank | null>(null);
+  const [form, setForm] = useState<MethodForm | null>(null);
 
   const { data: methods = [] } = useQuery({
     queryKey: ["payment-methods"],
