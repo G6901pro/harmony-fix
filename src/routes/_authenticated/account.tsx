@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
   CreditCard,
@@ -16,16 +16,17 @@ import {
 } from "lucide-react";
 import { Outlet } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
-import { EMPTY_BADGES, fetchAccountBadges, type AccountBadgeCounts } from "@/lib/account-badges";
+import { badgesFromSnapshot, categoryForPath } from "@/lib/account-badges";
+import { useNotificationBadges } from "@/lib/notification-badges";
 
 export const Route = createFileRoute("/_authenticated/account")({
   component: AccountLayout,
 });
+
 
 const NAV = [
   { to: "/account", label: "Dashboard", icon: LayoutDashboard, exact: true },
