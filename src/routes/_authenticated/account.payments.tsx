@@ -20,7 +20,21 @@ export const Route = createFileRoute("/_authenticated/account/payments")({
   component: PaymentsPage,
 });
 
-const blank = {
+type MethodKind = "card" | "mobile" | "bank";
+
+type MethodForm = {
+  kind: MethodKind;
+  label: string;
+  brand: string;
+  /** Card: last 4 of PAN. Mobile: last 4 of wallet number. Bank: last 4 of account. */
+  last4: string;
+  holder_name: string;
+  exp_month: string;
+  exp_year: string;
+  is_default: boolean;
+};
+
+const blank: MethodForm = {
   kind: "card",
   label: "Personal card",
   brand: "Visa",
@@ -30,6 +44,16 @@ const blank = {
   exp_year: "",
   is_default: false,
 };
+
+const KIND_PRESETS: Record<MethodKind, { label: string; brand: string }> = {
+  card: { label: "Personal card", brand: "Visa" },
+  mobile: { label: "bKash wallet", brand: "bKash" },
+  bank: { label: "Bank transfer", brand: "" },
+};
+
+const MOBILE_PROVIDERS = ["bKash", "Nagad", "Rocket", "Upay"];
+const CARD_BRANDS = ["Visa", "Mastercard", "American Express", "UnionPay"];
+
 
 function PaymentsPage() {
   const { user } = useAuth();
