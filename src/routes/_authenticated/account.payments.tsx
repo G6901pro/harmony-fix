@@ -137,10 +137,20 @@ function PaymentsPage() {
               <select
                 className={fieldClass}
                 value={form.kind}
-                onChange={(e) => setForm({ ...form, kind: e.target.value })}
+                onChange={(e) => {
+                  const kind = e.target.value as MethodKind;
+                  setForm({
+                    ...form,
+                    kind,
+                    ...KIND_PRESETS[kind],
+                    last4: "",
+                    exp_month: "",
+                    exp_year: "",
+                  });
+                }}
               >
                 <option value="card">Card</option>
-                <option value="mobile">Mobile wallet</option>
+                <option value="mobile">Mobile wallet (bKash / Nagad)</option>
                 <option value="bank">Bank transfer</option>
               </select>
             </Labeled>
@@ -153,53 +163,148 @@ function PaymentsPage() {
                 required
               />
             </Labeled>
-            <Labeled label="Brand / Provider">
-              <input
-                className={fieldClass}
-                value={form.brand}
-                maxLength={40}
-                onChange={(e) => setForm({ ...form, brand: e.target.value })}
-              />
-            </Labeled>
-            <Labeled label="Last 4 digits">
-              <input
-                className={fieldClass}
-                value={form.last4}
-                inputMode="numeric"
-                maxLength={4}
-                pattern="[0-9]{4}"
-                onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
-                required
-              />
-            </Labeled>
-            <Labeled label="Holder name">
-              <input
-                className={fieldClass}
-                value={form.holder_name}
-                maxLength={100}
-                onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
-              />
-            </Labeled>
-            <div className="grid grid-cols-2 gap-4">
-              <Labeled label="Exp month">
-                <input
-                  className={fieldClass}
-                  value={form.exp_month}
-                  inputMode="numeric"
-                  maxLength={2}
-                  onChange={(e) => setForm({ ...form, exp_month: e.target.value.replace(/\D/g, "") })}
-                />
-              </Labeled>
-              <Labeled label="Exp year">
-                <input
-                  className={fieldClass}
-                  value={form.exp_year}
-                  inputMode="numeric"
-                  maxLength={4}
-                  onChange={(e) => setForm({ ...form, exp_year: e.target.value.replace(/\D/g, "") })}
-                />
-              </Labeled>
-            </div>
+
+            {form.kind === "card" ? (
+              <>
+                <Labeled label="Card brand">
+                  <select
+                    className={fieldClass}
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  >
+                    {CARD_BRANDS.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label="Last 4 digits of card">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="4242"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Name on card">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                  />
+                </Labeled>
+                <div className="grid grid-cols-2 gap-4">
+                  <Labeled label="Exp month">
+                    <input
+                      className={fieldClass}
+                      value={form.exp_month}
+                      inputMode="numeric"
+                      maxLength={2}
+                      placeholder="09"
+                      onChange={(e) =>
+                        setForm({ ...form, exp_month: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </Labeled>
+                  <Labeled label="Exp year">
+                    <input
+                      className={fieldClass}
+                      value={form.exp_year}
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="2029"
+                      onChange={(e) =>
+                        setForm({ ...form, exp_year: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </Labeled>
+                </div>
+                <p className="text-[10px] tracking-[0.16em] text-muted-foreground uppercase sm:col-span-2">
+                  We never ask for or store a full card number or CVV.
+                </p>
+              </>
+            ) : null}
+
+            {form.kind === "mobile" ? (
+              <>
+                <Labeled label="Wallet provider">
+                  <select
+                    className={fieldClass}
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  >
+                    {MOBILE_PROVIDERS.map((provider) => (
+                      <option key={provider} value={provider}>
+                        {provider}
+                      </option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label="Last 4 digits of wallet number">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="1234"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Account holder name">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                  />
+                </Labeled>
+              </>
+            ) : null}
+
+            {form.kind === "bank" ? (
+              <>
+                <Labeled label="Bank name">
+                  <input
+                    className={fieldClass}
+                    value={form.brand}
+                    maxLength={60}
+                    placeholder="City Bank"
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Last 4 digits of account number">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="9012"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Account holder name">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                    required
+                  />
+                </Labeled>
+              </>
+            ) : null}
+
             <label className="flex items-center gap-3 self-end pb-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"
