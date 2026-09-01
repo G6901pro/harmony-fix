@@ -339,12 +339,27 @@ function PaymentsPage() {
               )}
             >
               <div className="flex items-start justify-between">
-                <CreditCard className="size-6 text-gold" />
-                {method.is_default ? (
-                  <span className="inline-flex items-center gap-1 text-[9px] tracking-[0.2em] text-gold uppercase">
-                    <Star className="size-3 fill-gold" /> Default
+                {method.kind === "mobile" ? (
+                  <Smartphone className="size-6 text-gold" />
+                ) : method.kind === "bank" ? (
+                  <Landmark className="size-6 text-gold" />
+                ) : (
+                  <CreditCard className="size-6 text-gold" />
+                )}
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-[9px] tracking-[0.2em] text-muted-foreground uppercase">
+                    {method.kind === "mobile"
+                      ? "Mobile wallet"
+                      : method.kind === "bank"
+                        ? "Bank transfer"
+                        : "Card"}
                   </span>
-                ) : null}
+                  {method.is_default ? (
+                    <span className="inline-flex items-center gap-1 text-[9px] tracking-[0.2em] text-gold uppercase">
+                      <Star className="size-3 fill-gold" /> Default
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <p className="mt-6 font-display text-xl tracking-[0.2em]">•••• {method.last4}</p>
               <p className="mt-2 text-xs text-muted-foreground">
@@ -353,6 +368,7 @@ function PaymentsPage() {
                   ? ` · ${String(method.exp_month).padStart(2, "0")}/${method.exp_year}`
                   : ""}
               </p>
+
               {method.holder_name ? (
                 <p className="mt-1 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
                   {method.holder_name}
