@@ -59,16 +59,25 @@ function AccountLayout() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
-  const { data: badges = EMPTY_BADGES } = useQuery<AccountBadgeCounts>({
-    queryKey: ["account-badges", user?.id ?? "anon"],
-    queryFn: fetchAccountBadges,
-    enabled: Boolean(user?.id),
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
-    initialData: EMPTY_BADGES,
+  const badgeState = useNotificationBadges();
+  const badges = badgesFromSnapshot({
+    total: badgeState.total,
+    categories: badgeState.categories,
   });
 
-  // Live refresh whenever the customer's notifications or orders change.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Viewing a section marks that category's notifications as read.
+  useEffect(() => {
+    const category = categoryForPath(pathname);
+    if (!category || !user?.id) return;
+    if ((badgeState.categories[category] ?? 0) === 0) return;
+    void badgeState.clear(category);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, user?.id, badgeState.categories]);
+
+  // Live refresh whenever the customer's orders change (notifications are
+  // already handled by the realtime subscription inside the badge hook).
   useEffect(() => {
     if (!user?.id) return;
     let channel: ReturnType<typeof supabase.channel> | null = null;
@@ -77,13 +86,8 @@ function AccountLayout() {
         .channel(`account-badges-${user.id}-${Math.random().toString(36).slice(2)}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-          () => void queryClient.invalidateQueries({ queryKey: ["account-badges"] }),
-        )
-        .on(
-          "postgres_changes",
           { event: "*", schema: "public", table: "orders", filter: `user_id=eq.${user.id}` },
-          () => void queryClient.invalidateQueries({ queryKey: ["account-badges"] }),
+          () => void queryClient.invalidateQueries({ queryKey: ["notification-badges"] }),
         )
         .subscribe();
     } catch (error) {
@@ -97,6 +101,7 @@ function AccountLayout() {
       }
     };
   }, [user?.id, queryClient]);
+
 
   useEffect(() => {
     setOpen(false);
