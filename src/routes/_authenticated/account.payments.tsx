@@ -74,7 +74,7 @@ function PaymentsPage() {
   });
 
   const save = useMutation({
-    mutationFn: async (value: typeof blank) => {
+    mutationFn: async (value: MethodForm) => {
       if (!user) return;
       if (value.is_default) {
         await supabase.from("payment_methods").update({ is_default: false }).eq("user_id", user.id);
