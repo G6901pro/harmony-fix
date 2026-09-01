@@ -11,6 +11,7 @@ import { useOptionalAuth } from "@/lib/auth";
 
 export type NotificationCategory =
   | "orders"
+  | "invoices"
   | "coupons"
   | "reviews"
   | "payments"
@@ -21,6 +22,7 @@ export type CategoryCounts = Record<NotificationCategory, number>;
 
 export const EMPTY_CATEGORY_COUNTS: CategoryCounts = {
   orders: 0,
+  invoices: 0,
   coupons: 0,
   reviews: 0,
   payments: 0,
@@ -34,9 +36,10 @@ export function categoryForKind(kind: string | null | undefined): NotificationCa
   if (["order", "orders", "shipping", "delivery", "tracking", "return"].includes(value)) {
     return "orders";
   }
-  if (["coupon", "coupons", "promo", "promotion", "offer"].includes(value)) return "coupons";
+  if (["invoice", "invoices", "receipt"].includes(value)) return "invoices";
+  if (["coupon", "coupons", "promo", "promotion", "offer", "vip"].includes(value)) return "coupons";
   if (["review", "reviews", "rating"].includes(value)) return "reviews";
-  if (["payment", "payments", "invoice", "refund"].includes(value)) return "payments";
+  if (["payment", "payments", "refund"].includes(value)) return "payments";
   if (["wishlist", "favourite", "favorite", "restock"].includes(value)) return "wishlist";
   return "general";
 }
@@ -44,12 +47,14 @@ export function categoryForKind(kind: string | null | undefined): NotificationCa
 /** The `kind` values that belong to a category, used when marking as read. */
 const KINDS_BY_CATEGORY: Record<NotificationCategory, string[]> = {
   orders: ["order", "orders", "shipping", "delivery", "tracking", "return"],
-  coupons: ["coupon", "coupons", "promo", "promotion", "offer"],
+  invoices: ["invoice", "invoices", "receipt"],
+  coupons: ["coupon", "coupons", "promo", "promotion", "offer", "vip"],
   reviews: ["review", "reviews", "rating"],
-  payments: ["payment", "payments", "invoice", "refund"],
+  payments: ["payment", "payments", "refund"],
   wishlist: ["wishlist", "favourite", "favorite", "restock"],
   general: [],
 };
+
 
 export type BadgeSnapshot = {
   total: number;

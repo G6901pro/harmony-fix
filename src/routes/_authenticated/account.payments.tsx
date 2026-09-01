@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Plus, Star, Trash2 } from "lucide-react";
+import { CreditCard, Landmark, Plus, Smartphone, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -20,7 +20,21 @@ export const Route = createFileRoute("/_authenticated/account/payments")({
   component: PaymentsPage,
 });
 
-const blank = {
+type MethodKind = "card" | "mobile" | "bank";
+
+type MethodForm = {
+  kind: MethodKind;
+  label: string;
+  brand: string;
+  /** Card: last 4 of PAN. Mobile: last 4 of wallet number. Bank: last 4 of account. */
+  last4: string;
+  holder_name: string;
+  exp_month: string;
+  exp_year: string;
+  is_default: boolean;
+};
+
+const blank: MethodForm = {
   kind: "card",
   label: "Personal card",
   brand: "Visa",
@@ -31,10 +45,20 @@ const blank = {
   is_default: false,
 };
 
+const KIND_PRESETS: Record<MethodKind, { label: string; brand: string }> = {
+  card: { label: "Personal card", brand: "Visa" },
+  mobile: { label: "bKash wallet", brand: "bKash" },
+  bank: { label: "Bank transfer", brand: "" },
+};
+
+const MOBILE_PROVIDERS = ["bKash", "Nagad", "Rocket", "Upay"];
+const CARD_BRANDS = ["Visa", "Mastercard", "American Express", "UnionPay"];
+
+
 function PaymentsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState<typeof blank | null>(null);
+  const [form, setForm] = useState<MethodForm | null>(null);
 
   const { data: methods = [] } = useQuery({
     queryKey: ["payment-methods"],
@@ -50,7 +74,7 @@ function PaymentsPage() {
   });
 
   const save = useMutation({
-    mutationFn: async (value: typeof blank) => {
+    mutationFn: async (value: MethodForm) => {
       if (!user) return;
       if (value.is_default) {
         await supabase.from("payment_methods").update({ is_default: false }).eq("user_id", user.id);
@@ -113,10 +137,20 @@ function PaymentsPage() {
               <select
                 className={fieldClass}
                 value={form.kind}
-                onChange={(e) => setForm({ ...form, kind: e.target.value })}
+                onChange={(e) => {
+                  const kind = e.target.value as MethodKind;
+                  setForm({
+                    ...form,
+                    kind,
+                    ...KIND_PRESETS[kind],
+                    last4: "",
+                    exp_month: "",
+                    exp_year: "",
+                  });
+                }}
               >
                 <option value="card">Card</option>
-                <option value="mobile">Mobile wallet</option>
+                <option value="mobile">Mobile wallet (bKash / Nagad)</option>
                 <option value="bank">Bank transfer</option>
               </select>
             </Labeled>
@@ -129,53 +163,148 @@ function PaymentsPage() {
                 required
               />
             </Labeled>
-            <Labeled label="Brand / Provider">
-              <input
-                className={fieldClass}
-                value={form.brand}
-                maxLength={40}
-                onChange={(e) => setForm({ ...form, brand: e.target.value })}
-              />
-            </Labeled>
-            <Labeled label="Last 4 digits">
-              <input
-                className={fieldClass}
-                value={form.last4}
-                inputMode="numeric"
-                maxLength={4}
-                pattern="[0-9]{4}"
-                onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
-                required
-              />
-            </Labeled>
-            <Labeled label="Holder name">
-              <input
-                className={fieldClass}
-                value={form.holder_name}
-                maxLength={100}
-                onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
-              />
-            </Labeled>
-            <div className="grid grid-cols-2 gap-4">
-              <Labeled label="Exp month">
-                <input
-                  className={fieldClass}
-                  value={form.exp_month}
-                  inputMode="numeric"
-                  maxLength={2}
-                  onChange={(e) => setForm({ ...form, exp_month: e.target.value.replace(/\D/g, "") })}
-                />
-              </Labeled>
-              <Labeled label="Exp year">
-                <input
-                  className={fieldClass}
-                  value={form.exp_year}
-                  inputMode="numeric"
-                  maxLength={4}
-                  onChange={(e) => setForm({ ...form, exp_year: e.target.value.replace(/\D/g, "") })}
-                />
-              </Labeled>
-            </div>
+
+            {form.kind === "card" ? (
+              <>
+                <Labeled label="Card brand">
+                  <select
+                    className={fieldClass}
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  >
+                    {CARD_BRANDS.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label="Last 4 digits of card">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="4242"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Name on card">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                  />
+                </Labeled>
+                <div className="grid grid-cols-2 gap-4">
+                  <Labeled label="Exp month">
+                    <input
+                      className={fieldClass}
+                      value={form.exp_month}
+                      inputMode="numeric"
+                      maxLength={2}
+                      placeholder="09"
+                      onChange={(e) =>
+                        setForm({ ...form, exp_month: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </Labeled>
+                  <Labeled label="Exp year">
+                    <input
+                      className={fieldClass}
+                      value={form.exp_year}
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="2029"
+                      onChange={(e) =>
+                        setForm({ ...form, exp_year: e.target.value.replace(/\D/g, "") })
+                      }
+                    />
+                  </Labeled>
+                </div>
+                <p className="text-[10px] tracking-[0.16em] text-muted-foreground uppercase sm:col-span-2">
+                  We never ask for or store a full card number or CVV.
+                </p>
+              </>
+            ) : null}
+
+            {form.kind === "mobile" ? (
+              <>
+                <Labeled label="Wallet provider">
+                  <select
+                    className={fieldClass}
+                    value={form.brand}
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                  >
+                    {MOBILE_PROVIDERS.map((provider) => (
+                      <option key={provider} value={provider}>
+                        {provider}
+                      </option>
+                    ))}
+                  </select>
+                </Labeled>
+                <Labeled label="Last 4 digits of wallet number">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="1234"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Account holder name">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                  />
+                </Labeled>
+              </>
+            ) : null}
+
+            {form.kind === "bank" ? (
+              <>
+                <Labeled label="Bank name">
+                  <input
+                    className={fieldClass}
+                    value={form.brand}
+                    maxLength={60}
+                    placeholder="City Bank"
+                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Last 4 digits of account number">
+                  <input
+                    className={fieldClass}
+                    value={form.last4}
+                    inputMode="numeric"
+                    maxLength={4}
+                    pattern="[0-9]{4}"
+                    placeholder="9012"
+                    onChange={(e) => setForm({ ...form, last4: e.target.value.replace(/\D/g, "") })}
+                    required
+                  />
+                </Labeled>
+                <Labeled label="Account holder name">
+                  <input
+                    className={fieldClass}
+                    value={form.holder_name}
+                    maxLength={100}
+                    onChange={(e) => setForm({ ...form, holder_name: e.target.value })}
+                    required
+                  />
+                </Labeled>
+              </>
+            ) : null}
+
             <label className="flex items-center gap-3 self-end pb-2 text-xs text-muted-foreground">
               <input
                 type="checkbox"
@@ -210,12 +339,27 @@ function PaymentsPage() {
               )}
             >
               <div className="flex items-start justify-between">
-                <CreditCard className="size-6 text-gold" />
-                {method.is_default ? (
-                  <span className="inline-flex items-center gap-1 text-[9px] tracking-[0.2em] text-gold uppercase">
-                    <Star className="size-3 fill-gold" /> Default
+                {method.kind === "mobile" ? (
+                  <Smartphone className="size-6 text-gold" />
+                ) : method.kind === "bank" ? (
+                  <Landmark className="size-6 text-gold" />
+                ) : (
+                  <CreditCard className="size-6 text-gold" />
+                )}
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-[9px] tracking-[0.2em] text-muted-foreground uppercase">
+                    {method.kind === "mobile"
+                      ? "Mobile wallet"
+                      : method.kind === "bank"
+                        ? "Bank transfer"
+                        : "Card"}
                   </span>
-                ) : null}
+                  {method.is_default ? (
+                    <span className="inline-flex items-center gap-1 text-[9px] tracking-[0.2em] text-gold uppercase">
+                      <Star className="size-3 fill-gold" /> Default
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <p className="mt-6 font-display text-xl tracking-[0.2em]">•••• {method.last4}</p>
               <p className="mt-2 text-xs text-muted-foreground">
@@ -224,6 +368,7 @@ function PaymentsPage() {
                   ? ` · ${String(method.exp_month).padStart(2, "0")}/${method.exp_year}`
                   : ""}
               </p>
+
               {method.holder_name ? (
                 <p className="mt-1 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
                   {method.holder_name}
