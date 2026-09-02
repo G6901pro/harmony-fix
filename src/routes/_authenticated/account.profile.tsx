@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useVipStatus } from "@/lib/vip";
+import { VipBadge } from "@/components/account/VipBadge";
 import { notifyProfileUpdated } from "@/lib/mock-auth";
 import {
   PageHead,
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/account/profile")({
 
 function ProfilePage() {
   const { profile, user, refreshProfile } = useAuth();
+  const vip = useVipStatus(user?.id);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -83,6 +86,24 @@ function ProfilePage() {
         title="Your details"
         subtitle="Keep your contact details current so concierge and couriers can reach you."
       />
+
+      {vip.isVip ? (
+        <Panel>
+          <div className="flex flex-wrap items-center gap-4">
+            <VipBadge label={vip.member?.tier || vip.settings.tier_label} />
+            <div className="min-w-0">
+              <p className="text-sm">You're a {vip.member?.tier || vip.settings.tier_label} member.</p>
+              {vip.settings.benefits.length > 0 ? (
+                <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
+                  {vip.settings.benefits.map((benefit) => (
+                    <li key={benefit}>{benefit}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
 
       <Panel>
         <form onSubmit={save} className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
