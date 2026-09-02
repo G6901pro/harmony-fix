@@ -44,6 +44,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { safeQty, shopActions, useShopState } from "@/lib/shop-store";
 import { useMockAuth } from "@/lib/mock-auth";
 import { useStorefrontProducts } from "@/lib/storefront-products";
+import { useVipUserIds } from "@/lib/vip";
+import { VipBadge } from "@/components/account/VipBadge";
 import { useLanguage } from "@/lib/language";
 import { useProductReviews, useReviewEligibility, useSubmitReview } from "@/lib/reviews";
 
@@ -261,6 +263,7 @@ type DisplayReview = {
   verified: boolean;
   reply?: string | null;
   pending?: boolean;
+  vip?: boolean;
 };
 
 function ReviewsBlock({ product }: { product: CatalogProduct }) {
@@ -270,6 +273,7 @@ function ReviewsBlock({ product }: { product: CatalogProduct }) {
   const { data: eligibility } = useReviewEligibility(product.slug);
   const submit = useSubmitReview(product.slug);
 
+  const vipUserIds = useVipUserIds();
   const [filterStar, setFilterStar] = useState(0);
   const [sort, setSort] = useState<"recent" | "highest" | "lowest">("recent");
   const [withImages, setWithImages] = useState(false);
@@ -302,6 +306,7 @@ function ReviewsBlock({ product }: { product: CatalogProduct }) {
             verified: Boolean(review.is_verified_purchase),
             reply: review.admin_reply,
             pending: review.status !== "approved",
+            vip: vipUserIds.has(review.user_id),
           };
         });
       // Curated copy is only a safety net for a product with no stored reviews.
@@ -322,7 +327,7 @@ function ReviewsBlock({ product }: { product: CatalogProduct }) {
       console.error("[reviews] could not build review list", error);
       return [];
     }
-  }, [dbReviews, product.reviewsList]);
+  }, [dbReviews, product.reviewsList, vipUserIds]);
 
   const list = useMemo(() => {
     let items = [...productReviews];
@@ -506,7 +511,10 @@ function ReviewsBlock({ product }: { product: CatalogProduct }) {
                 <li key={review.id} className="lux-card p-6 sm:p-8">
                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{review.name}</p>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate text-sm font-medium">{review.name}</p>
+                        {review.vip ? <VipBadge compact /> : null}
+                      </div>
                       <p className="text-xs text-muted-foreground">{review.date}</p>
                     </div>
                     {review.verified ? (
