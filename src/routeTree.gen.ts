@@ -34,6 +34,7 @@ import { Route as AdminReviewsRouteImport } from './routes/admin.reviews'
 import { Route as AdminShippingRouteImport } from './routes/admin.shipping'
 import { Route as AdminSystemRouteImport } from './routes/admin.system'
 import { Route as AdminVerifyRouteImport } from './routes/admin.verify'
+import { Route as AdminVipRouteImport } from './routes/admin.vip'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as OrderSuccessOrderIdRouteImport } from './routes/order-success.$orderId'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -175,6 +176,11 @@ const AdminVerifyRoute = AdminVerifyRouteImport.update({
   path: '/verify',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminVipRoute = AdminVipRouteImport.update({
+  id: '/vip',
+  path: '/vip',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -291,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/admin/shipping': typeof AdminShippingRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/verify': typeof AdminVerifyRoute
+  '/admin/vip': typeof AdminVipRoute
   '/api/chat': typeof ApiChatRoute
   '/order-success/$orderId': typeof OrderSuccessOrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -331,6 +338,7 @@ export interface FileRoutesByTo {
   '/admin/shipping': typeof AdminShippingRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/verify': typeof AdminVerifyRoute
+  '/admin/vip': typeof AdminVipRoute
   '/api/chat': typeof ApiChatRoute
   '/order-success/$orderId': typeof OrderSuccessOrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -375,6 +383,7 @@ export interface FileRoutesById {
   '/admin/shipping': typeof AdminShippingRoute
   '/admin/system': typeof AdminSystemRoute
   '/admin/verify': typeof AdminVerifyRoute
+  '/admin/vip': typeof AdminVipRoute
   '/api/chat': typeof ApiChatRoute
   '/order-success/$orderId': typeof OrderSuccessOrderIdRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/admin/shipping'
     | '/admin/system'
     | '/admin/verify'
+    | '/admin/vip'
     | '/api/chat'
     | '/order-success/$orderId'
     | '/product/$slug'
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/admin/shipping'
     | '/admin/system'
     | '/admin/verify'
+    | '/admin/vip'
     | '/api/chat'
     | '/order-success/$orderId'
     | '/product/$slug'
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/admin/shipping'
     | '/admin/system'
     | '/admin/verify'
+    | '/admin/vip'
     | '/api/chat'
     | '/order-success/$orderId'
     | '/product/$slug'
@@ -711,6 +723,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVerifyRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/vip': {
+      id: '/admin/vip'
+      path: '/vip'
+      fullPath: '/admin/vip'
+      preLoaderRoute: typeof AdminVipRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -886,6 +905,7 @@ interface AdminRouteChildren {
   AdminShippingRoute: typeof AdminShippingRoute
   AdminSystemRoute: typeof AdminSystemRoute
   AdminVerifyRoute: typeof AdminVerifyRoute
+  AdminVipRoute: typeof AdminVipRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminProductsIdRoute: typeof AdminProductsIdRoute
   AdminProductsIndexRoute: typeof AdminProductsIndexRoute
@@ -908,6 +928,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminShippingRoute: AdminShippingRoute,
   AdminSystemRoute: AdminSystemRoute,
   AdminVerifyRoute: AdminVerifyRoute,
+  AdminVipRoute: AdminVipRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminProductsIdRoute: AdminProductsIdRoute,
   AdminProductsIndexRoute: AdminProductsIndexRoute,
