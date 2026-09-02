@@ -1314,6 +1314,75 @@ export type Database = {
         }
         Relationships: []
       }
+      vip_members: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_manually: boolean
+          qualified_at: string
+          qualifying_total: number
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_manually?: boolean
+          qualified_at?: string
+          qualifying_total?: number
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_manually?: boolean
+          qualified_at?: string
+          qualifying_total?: number
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vip_settings: {
+        Row: {
+          benefits: string[]
+          created_at: string
+          id: boolean
+          is_enabled: boolean
+          membership_days: number
+          threshold_amount: number
+          tier_label: string
+          updated_at: string
+          window_days: number
+        }
+        Insert: {
+          benefits?: string[]
+          created_at?: string
+          id?: boolean
+          is_enabled?: boolean
+          membership_days?: number
+          threshold_amount?: number
+          tier_label?: string
+          updated_at?: string
+          window_days?: number
+        }
+        Update: {
+          benefits?: string[]
+          created_at?: string
+          id?: boolean
+          is_enabled?: boolean
+          membership_days?: number
+          threshold_amount?: number
+          tier_label?: string
+          updated_at?: string
+          window_days?: number
+        }
+        Relationships: []
+      }
       wishlist_items: {
         Row: {
           created_at: string
@@ -1361,6 +1430,7 @@ export type Database = {
         Args: { p_code: string; p_order_id: string }
         Returns: boolean
       }
+      evaluate_vip_status: { Args: { _user_id: string }; Returns: undefined }
       generate_invoice_number: { Args: never; Returns: string }
       generate_order_number: { Args: never; Returns: string }
       has_delivered_purchase: {
