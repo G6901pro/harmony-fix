@@ -261,14 +261,14 @@ function VipModule() {
           VIP members ({members.length})
         </h2>
         <DataTable
-          head={["Customer", "Tier", "Qualifying spend", "Qualified", "Expires", ""]}
-          empty={members.length === 0 ? "No VIP members yet." : undefined}
+          columns={["Customer", "Tier", "Qualifying spend", "Qualified", "Expires", ""]}
+          empty={members.length === 0}
         >
           {members.map((member) => (
             <Row key={member.user_id}>
               <Cell>{names[member.user_id] ?? member.user_id.slice(0, 8)}</Cell>
               <Cell>
-                <Pill tone={member.granted_manually ? "neutral" : "gold"}>
+                <Pill tone={member.granted_manually ? "muted" : "gold"}>
                   {member.tier}
                   {member.granted_manually ? " · manual" : ""}
                 </Pill>
