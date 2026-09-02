@@ -1,5 +1,6 @@
 import {
   CreditCard,
+  Crown,
   Database,
   FileText,
   Image as ImageIcon,
@@ -30,6 +31,7 @@ export type AdminNavItem = {
     | "/admin/invoices"
     | "/admin/payments"
     | "/admin/customers"
+    | "/admin/vip"
     | "/admin/reviews"
     | "/admin/homepage"
     | "/admin/media"
@@ -62,6 +64,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
     badge: "payments",
   },
   { to: "/admin/customers", label: "Customers", icon: Users, module: "customers" },
+  { to: "/admin/vip", label: "VIP customers", icon: Crown, module: "customers" },
   { to: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote, module: "reviews" },
   { to: "/admin/homepage", label: "Homepage", icon: Sparkles, module: "homepage" },
   { to: "/admin/media", label: "Media", icon: ImageIcon, module: "media" },
