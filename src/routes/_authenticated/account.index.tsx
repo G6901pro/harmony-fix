@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell, FileText, Heart, Package, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useVipStatus } from "@/lib/vip";
+import { VipBadge } from "@/components/account/VipBadge";
 import { PageHead, Panel, Empty } from "@/components/account/ui";
 import { STATUS_LABEL, formatDate, money, type OrderStatus } from "@/lib/account-data";
 
@@ -34,6 +36,7 @@ function Stat({
 
 function OverviewPage() {
   const { user, profile } = useAuth();
+  const vip = useVipStatus(user?.id);
 
   const { data } = useQuery({
     queryKey: ["account-overview", user?.id],
