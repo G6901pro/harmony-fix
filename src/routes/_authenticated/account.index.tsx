@@ -71,6 +71,12 @@ function OverviewPage() {
         subtitle="A private view of your orders, deliveries and saved pieces."
       />
 
+      {vip.isVip ? (
+        <div>
+          <VipBadge label={vip.member?.tier || vip.settings.tier_label} />
+        </div>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat icon={Package} label="Orders placed" value={orders.length} to="/account/orders" />
         <Stat icon={Truck} label="In progress" value={active.length} to="/account/orders" />
