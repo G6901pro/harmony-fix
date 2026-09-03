@@ -17,6 +17,13 @@ import { useLanguage, type TranslationKey } from "@/lib/language";
 import { useTaxonomy } from "@/lib/taxonomy";
 import { cn } from "@/lib/utils";
 
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/shop" },
+  { label: "Collections", href: "/collections" },
+  { label: "About", href: "/about" },
+];
+
 const categories = [
   { id: 1, name: "Home", href: "/" },
   { id: 2, name: "Shop", href: "/shop" },
@@ -24,7 +31,7 @@ const categories = [
   { id: 4, name: "Contact", href: "/contact" },
 ];
 
-export default function Header() {
+export function Header() {
   const { data: taxonomyData } = useTaxonomy();
   const [query, setQuery] = useState("");
   const cartItems = useCartStore((state) => state.items);
@@ -56,13 +63,6 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" aria-label="Cart">
-            <ShoppingBag className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" aria-label="Wishlist">
-            <Heart className="h-5 w-5" />
-          </Button>
-
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -84,7 +84,15 @@ export default function Header() {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
+        </div>
 
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" aria-label="Cart">
+            <ShoppingBag className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Wishlist">
+            <Heart className="h-5 w-5" />
+          </Button>
           <Button variant="ghost" size="icon" aria-label="Account">
             <User className="h-5 w-5" />
           </Button>
