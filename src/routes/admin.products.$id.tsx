@@ -270,6 +270,17 @@ function ProductForm({ id }: { id: string }) {
         stock_quantity: Number(draft.stock_quantity) || 0,
         is_featured: draft.is_featured,
         is_active: draft.is_active,
+        // Optional detail copy — blank rows are dropped so the storefront can
+        // hide empty sections instead of rendering placeholders.
+        age_group: draft.age_group.trim() || null,
+        specs: draft.specs
+          .map((s) => ({ label: s.label.trim(), value: s.value.trim() }))
+          .filter((s) => s.label && s.value),
+        features: draft.features.map((f) => f.trim()).filter(Boolean),
+        box_contents: draft.box_contents.map((f) => f.trim()).filter(Boolean),
+        color_options: draft.color_options.map((f) => f.trim()).filter(Boolean),
+        warranty: draft.warranty.trim() || null,
+        safety_info: draft.safety_info.trim() || null,
       };
 
       if (isNew) {
