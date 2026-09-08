@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Menu, Search, Heart, ShoppingBag, User, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { CartDrawer, SearchDrawer, WishlistDrawer } from "@/components/layout/HeaderDrawers";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
