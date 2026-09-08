@@ -19,6 +19,15 @@ export type AdminProduct = {
   /** "draft" until the admin presses “Upload product”; only live rows reach the storefront. */
   status: string;
 
+  /** Optional rich detail copy, all editable per product in the admin form. */
+  age_group?: string | null;
+  specs?: { label: string; value: string }[] | null;
+  features?: string[] | null;
+  box_contents?: string[] | null;
+  color_options?: string[] | null;
+  warranty?: string | null;
+  safety_info?: string | null;
+
   is_featured: boolean;
   is_active: boolean;
   created_at: string;

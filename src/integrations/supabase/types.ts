@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -999,12 +999,15 @@ export type Database = {
           age_group: string | null
           barcode: string | null
           base_price: number
+          box_contents: string[]
           brand: string | null
           category: string
           color: string | null
+          color_options: string[]
           compare_at_price: number | null
           created_at: string
           description: string | null
+          features: string[]
           gallery_images: string[]
           id: string
           is_active: boolean
@@ -1013,24 +1016,30 @@ export type Database = {
           is_new_arrival: boolean
           low_stock_threshold: number
           main_image: string | null
+          safety_info: string | null
           sku: string | null
           slug: string
+          specs: Json
           status: string
           stock_quantity: number
           stock_status: string
           title: string
           updated_at: string
+          warranty: string | null
         }
         Insert: {
           age_group?: string | null
           barcode?: string | null
           base_price?: number
+          box_contents?: string[]
           brand?: string | null
           category?: string
           color?: string | null
+          color_options?: string[]
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          features?: string[]
           gallery_images?: string[]
           id?: string
           is_active?: boolean
@@ -1039,24 +1048,30 @@ export type Database = {
           is_new_arrival?: boolean
           low_stock_threshold?: number
           main_image?: string | null
+          safety_info?: string | null
           sku?: string | null
           slug: string
+          specs?: Json
           status?: string
           stock_quantity?: number
           stock_status?: string
           title: string
           updated_at?: string
+          warranty?: string | null
         }
         Update: {
           age_group?: string | null
           barcode?: string | null
           base_price?: number
+          box_contents?: string[]
           brand?: string | null
           category?: string
           color?: string | null
+          color_options?: string[]
           compare_at_price?: number | null
           created_at?: string
           description?: string | null
+          features?: string[]
           gallery_images?: string[]
           id?: string
           is_active?: boolean
@@ -1065,13 +1080,16 @@ export type Database = {
           is_new_arrival?: boolean
           low_stock_threshold?: number
           main_image?: string | null
+          safety_info?: string | null
           sku?: string | null
           slug?: string
+          specs?: Json
           status?: string
           stock_quantity?: number
           stock_status?: string
           title?: string
           updated_at?: string
+          warranty?: string | null
         }
         Relationships: []
       }

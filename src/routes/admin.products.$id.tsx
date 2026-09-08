@@ -34,6 +34,8 @@ export const Route = createFileRoute("/admin/products/$id")({
   component: ProductFormRoute,
 });
 
+type SpecRow = { label: string; value: string };
+
 type Draft = {
   title: string;
   slug: string;
@@ -49,6 +51,14 @@ type Draft = {
   stock_quantity: string;
   is_featured: boolean;
   is_active: boolean;
+  /** Rich, fully optional detail copy. */
+  age_group: string;
+  specs: SpecRow[];
+  features: string[];
+  box_contents: string[];
+  color_options: string[];
+  warranty: string;
+  safety_info: string;
 };
 
 /** Per-field validation messages keyed by draft field. */
@@ -91,7 +101,26 @@ const EMPTY: Draft = {
   stock_quantity: "0",
   is_featured: false,
   is_active: true,
+  age_group: "",
+  specs: [],
+  features: [],
+  box_contents: [],
+  color_options: [],
+  warranty: "",
+  safety_info: "",
 };
+
+/** Suggested specification labels; admins may type anything they like. */
+const SPEC_SUGGESTIONS = [
+  "Primary Finish",
+  "Materials",
+  "Assembly",
+  "Certifications",
+  "Shipping Weight",
+  "Dimensions",
+  "Battery",
+  "Top Speed",
+];
 
 
 
@@ -168,6 +197,15 @@ function ProductForm({ id }: { id: string }) {
         stock_quantity: String(p.stock_quantity ?? 0),
         is_featured: p.is_featured,
         is_active: p.is_active,
+        age_group: p.age_group ?? "",
+        specs: Array.isArray(p.specs)
+          ? p.specs.map((s) => ({ label: String(s?.label ?? ""), value: String(s?.value ?? "") }))
+          : [],
+        features: p.features ?? [],
+        box_contents: p.box_contents ?? [],
+        color_options: p.color_options ?? [],
+        warranty: p.warranty ?? "",
+        safety_info: p.safety_info ?? "",
       });
       setOptionSlug(p.slug);
       setLoading(false);
@@ -232,6 +270,17 @@ function ProductForm({ id }: { id: string }) {
         stock_quantity: Number(draft.stock_quantity) || 0,
         is_featured: draft.is_featured,
         is_active: draft.is_active,
+        // Optional detail copy — blank rows are dropped so the storefront can
+        // hide empty sections instead of rendering placeholders.
+        age_group: draft.age_group.trim() || null,
+        specs: draft.specs
+          .map((s) => ({ label: s.label.trim(), value: s.value.trim() }))
+          .filter((s) => s.label && s.value),
+        features: draft.features.map((f) => f.trim()).filter(Boolean),
+        box_contents: draft.box_contents.map((f) => f.trim()).filter(Boolean),
+        color_options: draft.color_options.map((f) => f.trim()).filter(Boolean),
+        warranty: draft.warranty.trim() || null,
+        safety_info: draft.safety_info.trim() || null,
       };
 
       if (isNew) {
