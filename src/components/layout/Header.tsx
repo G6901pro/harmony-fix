@@ -102,30 +102,39 @@ export function Header() {
                 </li>
               ))}
               {categoryEntries.length > 0 ? (
-                <li>
-                  <NavigationMenu>
-                    <NavigationMenuList>
-                      <NavigationMenuItem>
-                        <NavigationMenuTrigger className="h-auto bg-transparent p-0 text-[11px] tracking-[0.22em] text-muted-foreground uppercase hover:bg-transparent hover:text-foreground focus:bg-transparent data-[state=open]:bg-transparent data-[state=open]:text-foreground">
-                          Categories
-                        </NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                          <ul className="grid w-[520px] grid-cols-2 gap-1 p-3">
-                            {categoryEntries.map((category) => (
-                              <li key={category.href}>
-                                <a
-                                  href={category.href}
-                                  className="block rounded-md px-3 py-2 text-[11px] tracking-[0.18em] text-muted-foreground uppercase transition-colors hover:bg-muted hover:text-foreground"
-                                >
-                                  {category.label}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </NavigationMenuContent>
-                      </NavigationMenuItem>
-                    </NavigationMenuList>
-                  </NavigationMenu>
+                <li className="group relative">
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={categoriesOpen}
+                    onClick={() => setCategoriesOpen((v) => !v)}
+                    className="flex items-center gap-1.5 text-[11px] tracking-[0.22em] whitespace-nowrap text-muted-foreground uppercase transition-colors duration-300 hover:text-foreground"
+                  >
+                    Categories
+                    <ChevronDown className="size-3" />
+                  </button>
+                  <div
+                    className={cn(
+                      "absolute top-full left-0 z-50 mt-4 rounded-lg border bg-background p-3 shadow-lg transition-all duration-200",
+                      categoriesOpen
+                        ? "pointer-events-auto visible opacity-100"
+                        : "pointer-events-none invisible opacity-0",
+                    )}
+                  >
+                    <ul className="grid w-[480px] grid-cols-2 gap-1">
+                      {categoryEntries.map((category) => (
+                        <li key={category.href}>
+                          <a
+                            href={category.href}
+                            onClick={() => setCategoriesOpen(false)}
+                            className="block rounded-md px-3 py-2 text-[11px] tracking-[0.18em] text-muted-foreground uppercase transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            {category.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               ) : null}
             </ul>
