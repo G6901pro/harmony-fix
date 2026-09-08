@@ -101,7 +101,26 @@ const EMPTY: Draft = {
   stock_quantity: "0",
   is_featured: false,
   is_active: true,
+  age_group: "",
+  specs: [],
+  features: [],
+  box_contents: [],
+  color_options: [],
+  warranty: "",
+  safety_info: "",
 };
+
+/** Suggested specification labels; admins may type anything they like. */
+const SPEC_SUGGESTIONS = [
+  "Primary Finish",
+  "Materials",
+  "Assembly",
+  "Certifications",
+  "Shipping Weight",
+  "Dimensions",
+  "Battery",
+  "Top Speed",
+];
 
 
 
