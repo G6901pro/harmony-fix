@@ -62,8 +62,11 @@ export const requestAdminVerification = createServerFn({ method: "POST" })
     }
 
     if (!allowed) {
-      throw new Error("These credentials are not authorised for admin access.");
+      throw new Error(
+        `${data.email} is not on the authorised operator list. Check the address for typos, or ask a Super Admin to add it.`,
+      );
     }
+
 
 
     // Locate (or provision on first run) the operator identity.
