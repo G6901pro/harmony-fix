@@ -226,7 +226,7 @@ export function Header() {
           aria-label="Mobile"
           className="flex h-full flex-col justify-center gap-2 overflow-y-auto bg-background px-8 py-24"
         >
-          {navEntries.map((item, index) => (
+          {[...navEntries, ...categoryEntries].map((item, index) => (
             <a
               key={item.href}
               href={item.href}
