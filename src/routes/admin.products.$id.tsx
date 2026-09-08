@@ -197,6 +197,15 @@ function ProductForm({ id }: { id: string }) {
         stock_quantity: String(p.stock_quantity ?? 0),
         is_featured: p.is_featured,
         is_active: p.is_active,
+        age_group: p.age_group ?? "",
+        specs: Array.isArray(p.specs)
+          ? p.specs.map((s) => ({ label: String(s?.label ?? ""), value: String(s?.value ?? "") }))
+          : [],
+        features: p.features ?? [],
+        box_contents: p.box_contents ?? [],
+        color_options: p.color_options ?? [],
+        warranty: p.warranty ?? "",
+        safety_info: p.safety_info ?? "",
       });
       setOptionSlug(p.slug);
       setLoading(false);
