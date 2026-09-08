@@ -38,12 +38,33 @@ export const requestAdminVerification = createServerFn({ method: "POST" })
         .upsert({ email: data.email, role: permanent }, { onConflict: "email" });
     }
 
-    const allowed = allowedRow ?? (permanent ? { email: data.email, role: permanent } : null);
+    let allowed = allowedRow ?? (permanent ? { email: data.email, role: permanent } : null);
 
+    // Fallback: an operator who already holds an admin role stays authorised even
+    // if the allowlist row was lost (fresh backend, manual grant, renamed email).
+    if (!allowed) {
+      const { data: existing } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+      const match = existing?.users.find((u) => u.email?.toLowerCase() === data.email);
+      if (match) {
+        const { data: roleRow } = await supabaseAdmin
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", match.id)
+          .in("role", ["super_admin", "admin"])
+          .maybeSingle();
+        if (roleRow) {
+          allowed = { email: data.email, role: roleRow.role };
+          await supabaseAdmin
+            .from("admin_allowlist")
+            .upsert({ email: data.email, role: roleRow.role }, { onConflict: "email" });
+        }
+      }
+    }
 
     if (!allowed) {
       throw new Error("These credentials are not authorised for admin access.");
     }
+
 
     // Locate (or provision on first run) the operator identity.
     const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
