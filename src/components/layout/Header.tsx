@@ -94,7 +94,33 @@ export function Header() {
                   </a>
                 </li>
               ))}
-
+              {categoryEntries.length > 0 ? (
+                <li>
+                  <NavigationMenu>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger className="h-auto bg-transparent p-0 text-[11px] tracking-[0.22em] text-muted-foreground uppercase hover:bg-transparent hover:text-foreground focus:bg-transparent data-[state=open]:bg-transparent data-[state=open]:text-foreground">
+                          Categories
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid w-[520px] grid-cols-2 gap-1 p-3">
+                            {categoryEntries.map((category) => (
+                              <li key={category.href}>
+                                <a
+                                  href={category.href}
+                                  className="block rounded-md px-3 py-2 text-[11px] tracking-[0.18em] text-muted-foreground uppercase transition-colors hover:bg-muted hover:text-foreground"
+                                >
+                                  {category.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
+                </li>
+              ) : null}
             </ul>
           </nav>
         </div>
