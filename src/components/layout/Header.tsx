@@ -44,15 +44,13 @@ export function Header() {
   const { categoryTree } = useTaxonomy();
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
-  // Static links first, then every active top-level category from the database
-  // so a category created in the Control Room shows up in the navigation.
-  const navEntries: NavEntry[] = [
-    ...NAV.map((item) => ({ label: t(item.key), href: item.href })),
-    ...categoryTree.map((category) => ({
-      label: category.name,
-      href: `/shop?category=${encodeURIComponent(category.name)}`,
-    })),
-  ];
+  // Static links stay inline; live categories move into one dropdown so the
+  // desktop navbar never overflows the viewport.
+  const navEntries: NavEntry[] = NAV.map((item) => ({ label: t(item.key), href: item.href }));
+  const categoryEntries: NavEntry[] = categoryTree.map((category) => ({
+    label: category.name,
+    href: `/shop?category=${encodeURIComponent(category.name)}`,
+  }));
 
 
 
