@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react";
-import { Menu, Search, Heart, ShoppingBag, User, X } from "lucide-react";
+import { Menu, Search, Heart, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { CartDrawer, SearchDrawer, WishlistDrawer } from "@/components/layout/HeaderDrawers";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -40,6 +33,7 @@ type NavEntry = { label: string; href: string };
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
