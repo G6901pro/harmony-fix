@@ -34,6 +34,8 @@ export const Route = createFileRoute("/admin/products/$id")({
   component: ProductFormRoute,
 });
 
+type SpecRow = { label: string; value: string };
+
 type Draft = {
   title: string;
   slug: string;
@@ -49,6 +51,14 @@ type Draft = {
   stock_quantity: string;
   is_featured: boolean;
   is_active: boolean;
+  /** Rich, fully optional detail copy. */
+  age_group: string;
+  specs: SpecRow[];
+  features: string[];
+  box_contents: string[];
+  color_options: string[];
+  warranty: string;
+  safety_info: string;
 };
 
 /** Per-field validation messages keyed by draft field. */
