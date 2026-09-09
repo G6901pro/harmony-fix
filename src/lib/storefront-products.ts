@@ -30,7 +30,19 @@ type DbProduct = {
   age_group: string | null;
   color: string | null;
   created_at: string;
+  /** Admin-managed detail copy; empty when the admin left the field blank. */
+  specs: { label: string; value: string }[] | null;
+  features: string[] | null;
+  box_contents: string[] | null;
+  color_options: string[] | null;
+  warranty: string | null;
+  safety_info: string | null;
 };
+
+/** Trim a stored text list, dropping blank entries. */
+function cleanList(list: string[] | null | undefined) {
+  return (list ?? []).map((v) => String(v ?? "").trim()).filter(Boolean);
+}
 
 /** Curated house pieces keyed by slug — used to fill attributes the DB row omits. */
 const houseBySlug = new Map(houseCatalog.map((product) => [product.slug, product]));
@@ -124,24 +136,29 @@ function toCatalogProduct(
     isFeatured: Boolean(row.is_featured),
     createdAt: row.created_at,
     popularity: house?.popularity ?? 0,
-    // The database does not store rich detail copy yet — reuse the original
-    // curated entry for the same slug when it exists, otherwise derive basics
-    // from the row. Nothing here overwrites a value the row does provide.
-    specs: house?.specs?.length
-      ? house.specs
-      : [
-          { label: "Brand", value: row.brand ?? "Velocita Signature" },
-          { label: "Category", value: row.category },
-          ...(row.sku ? [{ label: "SKU", value: row.sku }] : []),
-          ...(row.age_group ?? house?.ageGroup
-            ? [{ label: "Recommended age", value: `${row.age_group ?? house?.ageGroup} years` }]
-            : []),
-        ],
-    features: house?.features ?? [],
-    boxContents: house?.boxContents ?? [],
-    warranty: house?.warranty ?? "24-month international warranty with concierge support.",
-    safety: house?.safety ?? "Adult supervision recommended during first use and charging.",
-    colorOptions: house?.colorOptions ?? [],
+    // Admin-managed detail copy wins. When a product has none stored, the
+    // curated house entry for the same slug is used as a fallback; anything
+    // still missing stays empty so the page can hide that section.
+    specs: (Array.isArray(row.specs) ? row.specs : [])
+      .map((s) => ({ label: String(s?.label ?? "").trim(), value: String(s?.value ?? "").trim() }))
+      .filter((s) => s.label && s.value).length
+      ? (row.specs as { label: string; value: string }[]).filter((s) => s?.label && s?.value)
+      : house?.specs?.length
+        ? house.specs
+        : [
+            ...(row.brand ? [{ label: "Brand", value: row.brand }] : []),
+            ...(row.category ? [{ label: "Category", value: row.category }] : []),
+            ...(row.sku ? [{ label: "SKU", value: row.sku }] : []),
+          ],
+    features: cleanList(row.features).length ? cleanList(row.features) : (house?.features ?? []),
+    boxContents: cleanList(row.box_contents).length
+      ? cleanList(row.box_contents)
+      : (house?.boxContents ?? []),
+    warranty: row.warranty?.trim() || house?.warranty || "",
+    safety: row.safety_info?.trim() || house?.safety || "",
+    colorOptions: cleanList(row.color_options).length
+      ? cleanList(row.color_options)
+      : (house?.colorOptions ?? []),
     reviewsList: [],
   };
 }
