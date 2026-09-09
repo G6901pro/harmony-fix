@@ -550,6 +550,143 @@ function ProductForm({ id }: { id: string }) {
           </div>
         </section>
 
+        <section className="rounded-xl border border-border bg-surface p-6">
+          <h2 className="font-display text-lg tracking-tight">Detailed information</h2>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Every field here is optional. Anything left empty is simply hidden on the product
+            page — no placeholder text is ever shown.
+          </p>
+
+          <div className="mt-6 space-y-8">
+            <div>
+              <span className={adminLabel}>Specifications</span>
+              <div className="mt-2 space-y-2">
+                {draft.specs.map((row, index) => (
+                  <div key={index} className="flex flex-wrap items-center gap-2">
+                    <input
+                      className={`${adminField} min-w-40 flex-1`}
+                      placeholder="Label (e.g. Materials)"
+                      list="spec-label-suggestions"
+                      value={row.label}
+                      onChange={(e) =>
+                        set(
+                          "specs",
+                          draft.specs.map((r, i) =>
+                            i === index ? { ...r, label: e.target.value } : r,
+                          ),
+                        )
+                      }
+                    />
+                    <input
+                      className={`${adminField} min-w-40 flex-1`}
+                      placeholder="Value"
+                      value={row.value}
+                      onChange={(e) =>
+                        set(
+                          "specs",
+                          draft.specs.map((r, i) =>
+                            i === index ? { ...r, value: e.target.value } : r,
+                          ),
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      className={ghostButton}
+                      aria-label="Remove specification"
+                      onClick={() =>
+                        set(
+                          "specs",
+                          draft.specs.filter((_, i) => i !== index),
+                        )
+                      }
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+                <datalist id="spec-label-suggestions">
+                  {SPEC_SUGGESTIONS.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+                <button
+                  type="button"
+                  className={ghostButton}
+                  onClick={() => set("specs", [...draft.specs, { label: "", value: "" }])}
+                >
+                  <Plus className="size-3.5" />
+                  Add specification
+                </button>
+              </div>
+            </div>
+
+            <ListEditor
+              label="Features"
+              placeholder="Feature detail"
+              items={draft.features}
+              onChange={(next) => set("features", next)}
+              addLabel="Add feature"
+            />
+
+            <ListEditor
+              label="What's in the box"
+              placeholder="Included item"
+              items={draft.box_contents}
+              onChange={(next) => set("box_contents", next)}
+              addLabel="Add item"
+            />
+
+            <ListEditor
+              label="Colour / finish options"
+              placeholder="e.g. Matte Black"
+              items={draft.color_options}
+              onChange={(next) => set("color_options", next)}
+              addLabel="Add colour option"
+            />
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label className={adminLabel} htmlFor="p-age">
+                  Recommended age
+                </label>
+                <input
+                  id="p-age"
+                  className={adminField}
+                  placeholder="e.g. 6–10"
+                  value={draft.age_group}
+                  maxLength={40}
+                  onChange={(e) => set("age_group", e.target.value)}
+                />
+              </div>
+              <div>
+                <label className={adminLabel} htmlFor="p-warranty">
+                  Warranty
+                </label>
+                <input
+                  id="p-warranty"
+                  className={adminField}
+                  value={draft.warranty}
+                  maxLength={300}
+                  onChange={(e) => set("warranty", e.target.value)}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className={adminLabel} htmlFor="p-safety">
+                  Safety information
+                </label>
+                <textarea
+                  id="p-safety"
+                  className={`${adminField} min-h-24`}
+                  value={draft.safety_info}
+                  maxLength={1200}
+                  onChange={(e) => set("safety_info", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
         {error ? (
           <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-xs text-destructive">
             {error}
