@@ -745,3 +745,47 @@ function ProductForm({ id }: { id: string }) {
     </div>
   );
 }
+/** Repeatable single-value rows (features, box contents, colour options). */
+function ListEditor({
+  label,
+  placeholder,
+  items,
+  onChange,
+  addLabel,
+}: {
+  label: string;
+  placeholder: string;
+  items: string[];
+  onChange: (next: string[]) => void;
+  addLabel: string;
+}) {
+  return (
+    <div>
+      <span className={adminLabel}>{label}</span>
+      <div className="mt-2 space-y-2">
+        {items.map((item, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <input
+              className={`${adminField} flex-1`}
+              placeholder={placeholder}
+              value={item}
+              onChange={(e) => onChange(items.map((v, i) => (i === index ? e.target.value : v)))}
+            />
+            <button
+              type="button"
+              className={ghostButton}
+              aria-label={`Remove from ${label}`}
+              onClick={() => onChange(items.filter((_, i) => i !== index))}
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          </div>
+        ))}
+        <button type="button" className={ghostButton} onClick={() => onChange([...items, ""])}>
+          <Plus className="size-3.5" />
+          {addLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
