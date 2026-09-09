@@ -30,7 +30,19 @@ type DbProduct = {
   age_group: string | null;
   color: string | null;
   created_at: string;
+  /** Admin-managed detail copy; empty when the admin left the field blank. */
+  specs: { label: string; value: string }[] | null;
+  features: string[] | null;
+  box_contents: string[] | null;
+  color_options: string[] | null;
+  warranty: string | null;
+  safety_info: string | null;
 };
+
+/** Trim a stored text list, dropping blank entries. */
+function cleanList(list: string[] | null | undefined) {
+  return (list ?? []).map((v) => String(v ?? "").trim()).filter(Boolean);
+}
 
 /** Curated house pieces keyed by slug — used to fill attributes the DB row omits. */
 const houseBySlug = new Map(houseCatalog.map((product) => [product.slug, product]));
