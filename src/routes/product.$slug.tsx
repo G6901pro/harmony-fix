@@ -842,58 +842,87 @@ function ProductDetail({
             </div>
           </div>
 
-          {/* Details */}
-          <section className="mt-20 grid gap-10 border-t border-border pt-16 lg:grid-cols-2">
-            <div>
-              <h2 className="font-display text-2xl">Specifications</h2>
-              <dl className="mt-6 divide-y divide-border">
-                {product.specs.map((spec) => (
-                  <div key={spec.label} className="grid grid-cols-2 gap-4 py-3 text-sm">
-                    <dt className="text-muted-foreground">{spec.label}</dt>
-                    <dd className="min-w-0">{spec.value}</dd>
+          {/* Details — every block is hidden when the product has no data for it. */}
+          {product.specs.length ||
+          product.features.length ||
+          product.boxContents.length ||
+          product.warranty ||
+          product.ageGroup ||
+          product.safety ? (
+            <section className="mt-20 grid gap-10 border-t border-border pt-16 lg:grid-cols-2">
+              {product.specs.length ? (
+                <div>
+                  <h2 className="font-display text-2xl">Specifications</h2>
+                  <dl className="mt-6 divide-y divide-border">
+                    {product.specs.map((spec) => (
+                      <div key={spec.label} className="grid grid-cols-2 gap-4 py-3 text-sm">
+                        <dt className="text-muted-foreground">{spec.label}</dt>
+                        <dd className="min-w-0">{spec.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ) : null}
+              <div className="space-y-10">
+                {product.features.length ? (
+                  <div>
+                    <h2 className="font-display text-2xl">Features</h2>
+                    <ul className="mt-6 space-y-3">
+                      {product.features.map((feature) => (
+                        <li key={feature} className="flex gap-3 text-sm text-muted-foreground">
+                          <Check className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                ))}
-              </dl>
-            </div>
-            <div className="space-y-10">
-              <div>
-                <h2 className="font-display text-2xl">Features</h2>
-                <ul className="mt-6 space-y-3">
-                  {product.features.map((feature) => (
-                    <li key={feature} className="flex gap-3 text-sm text-muted-foreground">
-                      <Check className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                ) : null}
+                {product.boxContents.length ? (
+                  <div>
+                    <h2 className="font-display text-2xl">What's in the box</h2>
+                    <ul className="mt-6 space-y-3">
+                      {product.boxContents.map((item) => (
+                        <li key={item} className="flex gap-3 text-sm text-muted-foreground">
+                          <Box className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                {product.warranty || product.ageGroup || product.safety ? (
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {product.warranty ? (
+                      <div>
+                        <h3 className="text-[11px] tracking-[0.22em] uppercase">Warranty</h3>
+                        <p className="mt-3 text-sm text-muted-foreground">{product.warranty}</p>
+                      </div>
+                    ) : null}
+                    {product.ageGroup ? (
+                      <div>
+                        <h3 className="text-[11px] tracking-[0.22em] uppercase">
+                          Age recommendation
+                        </h3>
+                        <p className="mt-3 text-sm text-muted-foreground">
+                          {/^[\d–\-+ ]+$/.test(product.ageGroup)
+                            ? `${product.ageGroup} years`
+                            : product.ageGroup}
+                        </p>
+                      </div>
+                    ) : null}
+                    {product.safety ? (
+                      <div className="sm:col-span-2">
+                        <h3 className="text-[11px] tracking-[0.22em] uppercase">
+                          Safety information
+                        </h3>
+                        <p className="mt-3 text-sm text-muted-foreground">{product.safety}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
-              <div>
-                <h2 className="font-display text-2xl">What's in the box</h2>
-                <ul className="mt-6 space-y-3">
-                  {product.boxContents.map((item) => (
-                    <li key={item} className="flex gap-3 text-sm text-muted-foreground">
-                      <Box className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div>
-                  <h3 className="text-[11px] tracking-[0.22em] uppercase">Warranty</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">{product.warranty}</p>
-                </div>
-                <div>
-                  <h3 className="text-[11px] tracking-[0.22em] uppercase">Age recommendation</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">{product.ageGroup} years</p>
-                </div>
-                <div className="sm:col-span-2">
-                  <h3 className="text-[11px] tracking-[0.22em] uppercase">Safety information</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">{product.safety}</p>
-                </div>
-              </div>
-            </div>
-          </section>
+            </section>
+          ) : null}
 
           <ErrorBoundary boundary="product_reviews" silent>
             <ReviewsBlock product={product} />
